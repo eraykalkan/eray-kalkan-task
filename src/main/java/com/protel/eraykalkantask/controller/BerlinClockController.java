@@ -7,8 +7,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Optional;
-
 
 @RestController
 public class BerlinClockController {
@@ -21,7 +19,7 @@ public class BerlinClockController {
     }
 
     @RequestMapping(path="/berlinClock" , method = RequestMethod.GET)
-    public ResponseEntity<BerlinClockDTO> getBerlinClock(@RequestParam(value="time") Optional<String> time) {
+    public ResponseEntity<BerlinClockDTO> getBerlinClock(@RequestParam("time") String time) {
         return new ResponseEntity<>(berlinClockService.convertToBerlinClock(time),HttpStatus.OK);
     }
 
