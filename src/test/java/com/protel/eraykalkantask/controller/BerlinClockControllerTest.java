@@ -1,5 +1,6 @@
 package com.protel.eraykalkantask.controller;
 
+import com.protel.eraykalkantask.dto.BerlinClockDTO;
 import com.protel.eraykalkantask.service.BerlinClockService;
 import org.junit.Before;
 import org.junit.Test;
@@ -13,7 +14,14 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Optional;
+
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 
 import static org.mockito.Mockito.when;
@@ -35,13 +43,11 @@ public class BerlinClockControllerTest {
     public void setup() {
         MockitoAnnotations.initMocks(this);
         mockMvc= MockMvcBuilders.standaloneSetup(berlinClockController).build();
-
     }
 
     @Test
     public void getBerlinClock_ShouldReturnEmptyStringOnNull() throws Exception {
 
-        //when(berlinClockService.convertToBerlinClock("")).thenReturn(null);
 
         this.mockMvc.perform(get("/berlinClock")
                 .param("time","")
@@ -50,13 +56,23 @@ public class BerlinClockControllerTest {
                 .andExpect(content().string(containsString("")));
     }
 
+
     @Test
-    public void getBerlinClock_ShouldReturnHttp400WhenParameterNotPresent() throws Exception {
+    public void getBerlinClock_ShouldReturnValidValueWhenParameterPresent() throws Exception {
+
+        LocalTime time = LocalTime.of(13,10,22);
+        BerlinClockDTO berlinClockDTO=new BerlinClockDTO();
+        berlinClockDTO.setClock("YYY0000000000000RR00RRR0");
+
+        when(berlinClockService.convertToBerlinClock(Optional.of(time.toString()))).thenReturn(berlinClockDTO);
+
 
         this.mockMvc.perform(get("/berlinClock")
+                .param("time",time.toString())
                 .contentType(MediaType.APPLICATION_JSON_UTF8))
-                .andExpect(status().is4xxClientError())
-                .andExpect(content().string(containsString("")));
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString().equals("YYY0000000000000RR00RRR0");
     }
     
 }
